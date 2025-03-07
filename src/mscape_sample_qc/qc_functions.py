@@ -111,7 +111,8 @@ def check_thresholds(metadata_dict: dict, threshold_dict: dict) -> dict:
     result_dict = {}
 
     for metric in threshold_dict.keys():
-        dict_key = f"{metric}"
+        result_dict[f"{metric}"] = metadata_dict[metric]
+        dict_key = f"{metric}_qc"
         # Large values = better, lower values = fail
         if threshold_dict[metric]['pass'] > threshold_dict[metric]['fail']:
             if metadata_dict[metric] >= threshold_dict[metric]['pass']:
@@ -143,7 +144,7 @@ def check_spike_detected(metadata_dict: dict, qc_dict: dict) -> dict:
     """
     if metadata_dict["count_descendants_spike_in"] == 0:
         qc_dict['spike_detected'] = "Fail"
-        qc_dict['percentage_spike_in'] = "Not applicable"
+        qc_dict['percentage_spike_in_qc'] = "NA"
     else:
         qc_dict['spike_detected'] = "Pass"
 
