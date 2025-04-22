@@ -166,3 +166,48 @@ def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: os.path
         json.dump(qc_dict, file)
     
     return result_file
+
+def create_analysis_fields_dict(record_id: str, qc_thresholds: dict, qc_results: dict) -> dict:
+    """Set up fields dictionary used to populate analysis table containing
+    QC metrics.
+     Arguments:
+        qc_thresholds -- Dictionary containing qc criteria used to generate metrics
+        qc_results -- Dictionary containing qc results
+    Returns:
+        fields_dict -- Dictionary containing required fields for input to analysis table
+    """
+
+    fields_dict = {
+            "name": "Sample QC",
+            "description": "This is an analysis to generate QC statistics for individual samples",
+            "analysis_date": datetime.datetime.now().date().strftime('%Y-%m-%d'),
+            "pipeline_name": "mscape-sample-qc",
+            "pipeline_url": "https://github.com/ukhsa-collaboration/mscape-sample-qc/",
+            "pipeline_version": "0.1.0",
+            "result": "QC result",
+            "report": "",
+            "outputs": "", # NOTE: Add result_file if decide to write to s3 as well as onyx
+            "methods": {'qc_thresholds': qc_thresholds},
+            "result_metrics": qc_results,
+            "records": record_id,
+            "identifiers": [],
+        }
+
+    return fields_dict
+
+def add_qc_analysis_to_onyx(fields_dict: dict):
+    """Add QC information as an analysis table to onyx.
+    Arguments:
+        fields_dict -- Dictionary containing required fields for input to analysis table
+    Returns:
+        Name of analysis
+    """
+    # TODO: Add to this function e.g. implement try/except and error handling
+    # Test connection/creation of table then add table to onyx?
+    with OnyxClient(CONFIG) as client:
+        result = client.create_analysis(
+            project="mscape",
+            fields=fields_dict,
+            test=True
+    )
+    return result
