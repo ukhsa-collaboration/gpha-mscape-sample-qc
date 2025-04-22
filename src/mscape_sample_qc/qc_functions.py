@@ -33,7 +33,6 @@ def retrieve_sample_information(record_id: str) -> [pd.DataFrame, pd.DataFrame]:
     classifier_df = pd.DataFrame(record.pop('classifier_calls'))
     
     # Remaining keys in dict to dataframe to retrieve metadata:
-    #metadata_df = pd.DataFrame.from_dict(record, orient='index').transpose()
     metadata_df = record
     
     return classifier_df, metadata_df
@@ -159,7 +158,6 @@ def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: os.path
     Returns:
         os.path of saved json file
     """
-    
     result_file = os.path.join(results_dir, f"{sample_id}_qc_results.json")
     
     with open(result_file, "w", encoding = "utf-8") as file:
