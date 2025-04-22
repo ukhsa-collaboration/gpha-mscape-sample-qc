@@ -1,6 +1,7 @@
 # mscape-sample-qc
 
-A repository containing code relating to per sample quality control of samples submitted to mscape.
+A repository containing code relating to per sample quality control of samples submitted to mscape. A climb ID is taken as input, and basic QC metrics are calculated for the
+given sample. QC metrics are then added to an analysis table in Onyx in json format.
 
 ## Installation
 
@@ -17,3 +18,20 @@ User installation:
 
 For developers:
 `pip install -e ".[dev]"`
+
+## Flags
+
+| Flag              | Required? |      Description      |
+|-------------------|-----------|-----------------------|
+| --help, -h        |    No     | Display help message  |
+| --input , -i      |    Yes    | Climb ID for sample   |
+| --config, -c      |    No     | Specify QC metrics config file to use. If not specified, the default will be used |
+| --output, -o      |    No     | Folder to save QC results to |
+
+## Usage
+
+Example command using default config file and output to current directory:  
+`qc_sample --input "C-1234" --output .`
+
+Example command specifying config file and output directory path:  
+`qc_sample --input "C-1234" --config /path/to/config/config_file.yaml --output /path/to/results/`
