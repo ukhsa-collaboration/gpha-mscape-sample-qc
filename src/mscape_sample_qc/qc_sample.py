@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Main script for perofrming QC on samples submitted to QC. The code
+"""Main script for performing QC on samples submitted to QC. The code
 queries the Onyx database to return key metrics on read quality and
 classification. Results are returned in json format.
 """
@@ -70,11 +70,11 @@ def main():
     except FileNotFoundError:
         logging.error("Specified config file not found, exiting program")
         return
-    
+
     ## Set up data needed for report
     # Retrieve classifier calls and metadata for record
     class_df, metadata_dict = qc.retrieve_sample_information(args.input)
-    
+
     # Calculate proportions for key metrics based on classification
     # information and add to the metadata dict
     proportion_data = qc.get_read_proportions(class_df)
@@ -82,13 +82,21 @@ def main():
 
     # Get qc status for relevant sample level metrics
     qc_results = qc.check_thresholds(metadata_dict, threshold_dict['sample_thresholds'])
+
     qc_results = qc.check_spike_detected(metadata_dict, qc_results)
-    
-    # Add in run level metrics (positive control, negative control)
-    
-    # Write results to json file
-    results = qc.write_qc_results_to_json(qc_results, args.input, args.output)
-    
+
+    # NOTE: Remove this step if decide to only add results to analysis table
+    result_file = qc.write_qc_results_to_json(qc_results, args.input, args.output)
+
+    ## Add QC metrics to onyx
+    # Set up data for entry in analysis table
+    fields_dict = qc.create_analysis_fields_dict(args.input,
+                                                 threshold_dict['sample_thresholds'],
+                                                 qc_results)
+    # TODO: Add in analysis table step + checks once functions complete
+    #Add data to analysis table
+    #analysis_table = qc.add_qc_analysis_to_onyx(fields_dict)
+
     return qc_results
 
 if __name__ == '__main__':
