@@ -65,25 +65,25 @@ def get_read_proportions(class_calls: pd.DataFrame) -> dict():
 
     try:
         taxa_dict[f"count_descendants_unclassified"] = class_calls.loc[
-            class_calls['human_readable'] == 'unclassified', 'count_descendants'].item()
+            class_calls['taxon_id'] == 0, 'count_descendants'].item()
         taxa_dict[f"percentage_unclassified"] = class_calls.loc[
-            class_calls['human_readable'] == 'unclassified', 'percentage'].item()
+            class_calls['taxon_id'] == 0, 'percentage'].item()
     except ValueError:
         taxa_dict[f"count_descendants_unclassified"] = 0
         taxa_dict[f"percentage_unclassified"] = 0
     try:
         taxa_dict[f"count_descendants_spike_in"] = class_calls.loc[
-            class_calls['human_readable'] == 'Tobacco mosaic virus', 'count_descendants'].item()
+            class_calls['taxon_id'] == 12242, 'count_descendants'].item()
         taxa_dict[f"percentage_spike_in"] = class_calls.loc[
-            class_calls['human_readable'] == 'Tobacco mosaic virus', 'percentage'].item()
+            class_calls['taxon_id'] == 12242, 'percentage'].item()
     except ValueError:
         taxa_dict[f"count_descendants_spike_in"] = 0
         taxa_dict[f"percentage_spike_in"] = 0
     try:
         taxa_dict[f"count_descendants_host"] = class_calls.loc[
-            class_calls['human_readable'] == 'Homo sapiens', 'count_descendants'].item()
+            class_calls['taxon_id'] == 9606, 'count_descendants'].item()
         taxa_dict[f"percentage_host"] = class_calls.loc[
-            class_calls['human_readable'] == 'Homo sapiens', 'percentage'].item()
+            class_calls['taxon_id'] == 9606, 'percentage'].item()
     except ValueError:
         taxa_dict[f"count_descendants_spike_in"] = 0
         taxa_dict[f"percentage_spike_in"] = 0
