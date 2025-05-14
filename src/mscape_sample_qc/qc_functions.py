@@ -5,10 +5,13 @@
 # Imports
 import os
 import datetime
+import time
 import json
 import yaml
+import logging
 import numpy as np
 import pandas as pd
+from importlib.metadata import version
 from onyx import OnyxConfig, OnyxClient, OnyxEnv, OnyxField
 
 # Set up onyx config
@@ -176,18 +179,18 @@ def create_analysis_fields_dict(record_id: str, qc_thresholds: dict, qc_results:
     """
 
     fields_dict = {
-            "name": "Sample QC",
+            "name": "ukhsa-classifier-qc-metrics",
             "description": "This is an analysis to generate QC statistics for individual samples",
             "analysis_date": datetime.datetime.now().date().strftime('%Y-%m-%d'),
             "pipeline_name": "mscape-sample-qc",
             "pipeline_url": "https://github.com/ukhsa-collaboration/mscape-sample-qc/",
-            "pipeline_version": "0.1.0",
+            "pipeline_version": version('mscape-sample-qc'),
             "result": "QC result",
             "report": "",
             "outputs": "", # NOTE: Add result_file if decide to write to s3 as well as onyx
             "methods": {'qc_thresholds': qc_thresholds},
             "result_metrics": qc_results,
-            "records": record_id,
+            "records": [record_id],
             "identifiers": [],
         }
 
