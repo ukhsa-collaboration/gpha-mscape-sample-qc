@@ -38,7 +38,7 @@ def set_up_logger(stdout_file):
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s")
 
-    out_handler = logging.FileHandler(stdout_file, mode = "w")
+    out_handler = logging.FileHandler(stdout_file, mode = "a")
     out_handler.setFormatter(formatter)
     logger.addHandler(out_handler)
 
@@ -46,11 +46,11 @@ def set_up_logger(stdout_file):
 
 def main():
     "Main function to process a given sample through QC."
-    
+
     args = get_args()
 
     # Set up log file
-    log_file = os.path.join(args.output, f"{args.input}_qc_log_file.txt")
+    log_file = "/home/jovyan/shared-team/component_logs/mscape-sample-qc_logfile.txt"
     set_up_logger(log_file)
 
     # Use default config if file is not supplied
