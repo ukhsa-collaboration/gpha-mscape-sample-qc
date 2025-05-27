@@ -83,6 +83,7 @@ def main():
     # Get qc status for relevant sample level metrics
     qc_results = qc.check_thresholds(metadata_dict, threshold_dict['sample_thresholds'])
 
+    # Check spike detected
     qc_results = qc.check_spike_detected(metadata_dict, qc_results)
 
     # NOTE: Remove this step if decide to only add results to analysis table
@@ -93,11 +94,13 @@ def main():
     fields_dict = qc.create_analysis_fields_dict(args.input,
                                                  threshold_dict['sample_thresholds'],
                                                  qc_results)
-    # TODO: Add in analysis table step + checks once functions complete
     #Add data to analysis table
-    #analysis_table = qc.add_qc_analysis_to_onyx(fields_dict)
+    # TODO: Comment in analysis table step + checks once functions complete and have correct
+    # permissions
+    result = ""
+    #result = qc.add_qc_analysis_to_onyx(fields_dict)
 
-    return qc_results
+    return result
 
 if __name__ == '__main__':
     sys.exit(main())
