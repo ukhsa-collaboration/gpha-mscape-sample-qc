@@ -79,6 +79,7 @@ def get_read_proportions(class_calls: pd.DataFrame) -> dict():
     except ValueError:
         taxa_dict[f"count_descendants_unclassified"] = 0
         taxa_dict[f"percentage_unclassified"] = 0
+
     try:
         taxa_dict[f"count_descendants_spike_in"] = class_calls.loc[
             class_calls['taxon_id'] == 12242, 'count_descendants'].item()
@@ -87,14 +88,16 @@ def get_read_proportions(class_calls: pd.DataFrame) -> dict():
     except ValueError:
         taxa_dict[f"count_descendants_spike_in"] = 0
         taxa_dict[f"percentage_spike_in"] = 0
+
     try:
         taxa_dict[f"count_descendants_host"] = class_calls.loc[
             class_calls['taxon_id'] == 9606, 'count_descendants'].item()
         taxa_dict[f"percentage_host"] = class_calls.loc[
             class_calls['taxon_id'] == 9606, 'percentage'].item()
     except ValueError:
-        taxa_dict[f"count_descendants_spike_in"] = 0
-        taxa_dict[f"percentage_spike_in"] = 0
+        taxa_dict[f"count_descendants_host"] = 0
+        taxa_dict[f"percentage_host"] = 0
+
     try:
         taxa_dict[f"count_descendants_genus"] = class_calls.loc[
             class_calls['rank'] == "G", 'count_descendants'].sum().item()
@@ -167,10 +170,10 @@ def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: os.path
         os.path of saved json file
     """
     result_file = os.path.join(results_dir, f"{sample_id}_qc_results.json")
-    
+
     with open(result_file, "w", encoding = "utf-8") as file:
         json.dump(qc_dict, file)
-    
+
     return result_file
 
 def create_analysis_fields_dict(record_id: str, qc_thresholds: dict, qc_results: dict) -> dict:
