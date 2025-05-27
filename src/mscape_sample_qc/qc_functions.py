@@ -29,24 +29,21 @@ CONFIG = OnyxConfig(
 )
 
 # Functions
-def retrieve_sample_information(record_id: str) -> [pd.DataFrame, pd.DataFrame]:
+def retrieve_sample_information(record_id: str) -> [pd.DataFrame, dict()]:
     """Retrieves sample information for given climb id. Returns two dataframes:
     - One containing classification information for the sample
     - One containing all other metadata for the sample
     """
     # Retrieve record info
     with OnyxClient(CONFIG) as client:
-        record = client.get(
+        metadata_dict = client.get(
             project = "mscape",
             climb_id = record_id)
-    
-    # Pop the cliassifer information from the record dictionary object and convert to df:
-    classifier_df = pd.DataFrame(record.pop('classifier_calls'))
-    
-    # Remaining keys in dict to dataframe to retrieve metadata:
-    metadata_df = record
-    
-    return classifier_df, metadata_df
+
+    # Pop the classifier information from the record dictionary object and convert to df:
+    classifier_df = pd.DataFrame(metadata_dict.pop('classifier_calls'))
+
+    return classifier_df, metadata_dict
 
 def read_config_file(config_file: os.path) -> dict():
     """Reads config file to get QC criteria to filter sequences against.
