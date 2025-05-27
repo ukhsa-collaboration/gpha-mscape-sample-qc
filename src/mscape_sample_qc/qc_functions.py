@@ -14,6 +14,14 @@ import pandas as pd
 from importlib.metadata import version
 from onyx import OnyxConfig, OnyxClient, OnyxEnv, OnyxField
 
+from onyx.exceptions import (
+    OnyxRequestError,
+    OnyxConnectionError,
+    OnyxServerError,
+    OnyxConfigError,
+    OnyxClientError,
+)
+
 # Set up onyx config
 CONFIG = OnyxConfig(
     domain=os.environ[OnyxEnv.DOMAIN],
@@ -197,18 +205,73 @@ def create_analysis_fields_dict(record_id: str, qc_thresholds: dict, qc_results:
     return fields_dict
 
 def add_qc_analysis_to_onyx(fields_dict: dict):
-    """Add QC information as an analysis table to onyx.
+    """Attempts to add QC information as an analysis table to onyx. If
+    3 attempts fail due to connections issues the program will exit
+    and returns an error. Errors requiring manual fixing are also raised.
+
     Arguments:
         fields_dict -- Dictionary containing required fields for input to analysis table
     Returns:
         Name of analysis
     """
-    # TODO: Add to this function e.g. implement try/except and error handling
     # Test connection/creation of table then add table to onyx?
-    with OnyxClient(CONFIG) as client:
-        result = client.create_analysis(
-            project="mscape",
-            fields=fields_dict,
-            test=True
-    )
+
+    connection_attempt = 0
+    success = False
+
+    while connection_attempt <= 3:
+        try:
+            connection_attempt += 1
+            logging.debug("Attempting connection to Onyx. Attempt number %s",
+                          connection_attempt)
+
+            with OnyxClient(CONFIG) as client:
+                result = client.create_analysis(
+                    project="mscape",
+                    fields=fields_dict,
+                    test=True
+        )
+
+        except OnyxConnectionError as exc:
+            if connection_attempts < 3:
+                logging.debug("OnyxConnectionError: %s. Retrying connection in 5 seconds",
+                              exc)
+                time.sleep(5)
+                continue
+            else:
+                logging.error("""OnyxConnectionError: %s. Connection to Onyx failed %s times,
+                              exiting program""",
+                              exc, connection_attempt)
+                return
+
+        except OnyxConfigError as exc:
+            logging.error("""OnyxConfigError: %s. Check credentials and details in OnyxConfig
+                          are correct. See
+                          https://climb-tre.github.io/onyx-client/api/documentation/exceptions/
+                          for more details.""",
+                          exc)
+            return
+
+        except OnyxClientError as exc:
+            logging.error("""OnyxClientError: %s. Check calls to OnyxClient are correct
+                          and required arguments e.g. climb_id are present. See
+                          https://climb-tre.github.io/onyx-client/api/documentation/exceptions/
+                          for more details""",
+                          exc)
+            return
+
+        except OnyxRequestError as exc:
+            logging.error("""OnyxRequestError: %s. Check correct credentials supplied and/or user
+                          permissions. See
+                          https://climb-tre.github.io/onyx-client/api/documentation/exceptions/
+                          for more details""", exc)
+            return
+
+        except OnyxServerError as exc:
+            logging.error("OnyxServerError: %s. Report to system admin", exc)
+            return
+
+        except Exception as exc:
+            logging.error("Unhandled error: %s.", exc)
+
     return result
