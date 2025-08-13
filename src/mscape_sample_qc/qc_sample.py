@@ -26,6 +26,9 @@ def get_args():
                         help="Path to file with QC criteria")
     parser.add_argument("--output", "-o", type=str, required=True,
                         help="Folder to save QC results to")
+    parser.add_argument("--server", "-s", type=str, required=True,
+                        choices=["mscape", "synthscape"],
+                        help="Specify server code is being run on")
 
     return parser.parse_args()
 
@@ -73,7 +76,7 @@ def main():
 
     ## Set up data needed for report
     # Retrieve classifier calls and metadata for record
-    class_df, metadata_dict = qc.retrieve_sample_information(args.input)
+    class_df, metadata_dict = qc.retrieve_sample_information(args.input, args.server)
 
     # Calculate proportions for key metrics based on classification
     # information and add to the metadata dict
@@ -93,12 +96,12 @@ def main():
     # Set up data for entry in analysis table
     fields_dict = qc.create_analysis_fields_dict(args.input,
                                                  threshold_dict['sample_thresholds'],
-                                                 qc_results)
+                                                 qc_results, args.server)
     #Add data to analysis table
     # TODO: Comment in analysis table step + checks once functions complete and have correct
     # permissions
     result = ""
-    #result = qc.add_qc_analysis_to_onyx(fields_dict)
+    #result = qc.add_qc_analysis_to_onyx(fields_dict, args.server)
 
     return result
 

@@ -29,7 +29,7 @@ CONFIG = OnyxConfig(
 )
 
 # Functions
-def retrieve_sample_information(record_id: str) -> [pd.DataFrame, dict()]:
+def retrieve_sample_information(record_id: str, server: str) -> [pd.DataFrame, dict()]:
     """Retrieves sample information for given climb id. Returns two dataframes:
     - One containing classification information for the sample
     - One containing all other metadata for the sample
@@ -37,7 +37,7 @@ def retrieve_sample_information(record_id: str) -> [pd.DataFrame, dict()]:
     # Retrieve record info
     with OnyxClient(CONFIG) as client:
         metadata_dict = client.get(
-            project = "mscape",
+            project = server,
             climb_id = record_id)
 
     # Pop the classifier information from the record dictionary object and convert to df:
@@ -176,7 +176,7 @@ def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: os.path
 
     return result_file
 
-def create_analysis_fields_dict(record_id: str, qc_thresholds: dict, qc_results: dict) -> dict:
+def create_analysis_fields_dict(record_id: str, qc_thresholds: dict, qc_results: dict, server: str) -> dict:
     """Set up fields dictionary used to populate analysis table containing
     QC metrics.
      Arguments:
@@ -185,7 +185,7 @@ def create_analysis_fields_dict(record_id: str, qc_thresholds: dict, qc_results:
     Returns:
         fields_dict -- Dictionary containing required fields for input to analysis table
     """
-
+    server_records = f"{server}_records"
     fields_dict = {
             "name": "ukhsa-classifier-qc-metrics",
             "description": "This is an analysis to generate QC statistics for individual samples",
@@ -204,7 +204,7 @@ def create_analysis_fields_dict(record_id: str, qc_thresholds: dict, qc_results:
 
     return fields_dict
 
-def add_qc_analysis_to_onyx(fields_dict: dict):
+def add_qc_analysis_to_onyx(fields_dict: dict, server: str):
     """Attempts to add QC information as an analysis table to onyx. If
     3 attempts fail due to connections issues the program will exit
     and returns an error. Errors requiring manual fixing are also raised.
@@ -227,7 +227,7 @@ def add_qc_analysis_to_onyx(fields_dict: dict):
 
             with OnyxClient(CONFIG) as client:
                 result = client.create_analysis(
-                    project="mscape",
+                    project=server,
                     fields=fields_dict,
                     test=True
         )
