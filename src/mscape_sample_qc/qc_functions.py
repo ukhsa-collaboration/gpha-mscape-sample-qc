@@ -15,11 +15,10 @@ from importlib.metadata import version
 from onyx import OnyxConfig, OnyxClient, OnyxEnv, OnyxField
 
 from onyx.exceptions import (
-    OnyxRequestError,
     OnyxConnectionError,
-    OnyxServerError,
     OnyxConfigError,
     OnyxClientError,
+    OnyxHTTPError
 )
 
 # Set up onyx config
@@ -241,7 +240,7 @@ def add_qc_analysis_to_onyx(fields_dict: dict, server: str):
             else:
                 logging.error("""OnyxConnectionError: %s. Connection to Onyx failed %s times,
                               exiting program""",
-                              exc, connection_attempt)
+                              exc.response.json(), connection_attempt)
                 return
 
         except OnyxConfigError as exc:
@@ -249,7 +248,7 @@ def add_qc_analysis_to_onyx(fields_dict: dict, server: str):
                           are correct. See
                           https://climb-tre.github.io/onyx-client/api/documentation/exceptions/
                           for more details.""",
-                          exc)
+                          exc.response.json())
             return
 
         except OnyxClientError as exc:
@@ -257,21 +256,22 @@ def add_qc_analysis_to_onyx(fields_dict: dict, server: str):
                           and required arguments e.g. climb_id are present. See
                           https://climb-tre.github.io/onyx-client/api/documentation/exceptions/
                           for more details""",
-                          exc)
+                          exc.response.json())
             return
 
-        except OnyxRequestError as exc:
-            logging.error("""OnyxRequestError: %s. Check correct credentials supplied and/or user
-                          permissions. See
+        except OnyxHTTPError as exc:
+            logging.error("""OnyxHTTPError: %s. See
                           https://climb-tre.github.io/onyx-client/api/documentation/exceptions/
-                          for more details""", exc)
-            return
+                          for more details""",
+                          exc.response.json())
 
-        except OnyxServerError as exc:
-            logging.error("OnyxServerError: %s. Report to system admin", exc)
             return
 
         except Exception as exc:
-            logging.error("Unhandled error: %s.", exc)
+            logging.error("""Unhandled error: %s. See
+                          https://climb-tre.github.io/onyx-client/api/documentation/exceptions/
+                          for more details""",
+                          exc.response.json())
+            return
 
     return result
