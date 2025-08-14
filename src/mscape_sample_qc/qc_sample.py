@@ -29,6 +29,8 @@ def get_args():
     parser.add_argument("--server", "-s", type=str, required=True,
                         choices=["mscape", "synthscape"],
                         help="Specify server code is being run on")
+    parser.add_argument("--dry-run", "-d", required=False, action="store_true",
+                        help="Use this option to do a test upload and check for errors before attempting an upload to onyx")
 
     return parser.parse_args()
 
@@ -98,10 +100,7 @@ def main():
                                                  threshold_dict['sample_thresholds'],
                                                  qc_results, args.server)
     #Add data to analysis table
-    # TODO: Comment in analysis table step + checks once functions complete and have correct
-    # permissions
-    result = ""
-    #result = qc.add_qc_analysis_to_onyx(fields_dict, args.server)
+    result = qc.add_qc_analysis_to_onyx(fields_dict, args.server, args.dry_run)
 
     return result
 

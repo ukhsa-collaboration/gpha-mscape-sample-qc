@@ -203,7 +203,7 @@ def create_analysis_fields_dict(record_id: str, qc_thresholds: dict, qc_results:
 
     return fields_dict
 
-def add_qc_analysis_to_onyx(fields_dict: dict, server: str):
+def add_qc_analysis_to_onyx(fields_dict: dict, server: str, dryrun: bool) -> str:
     """Attempts to add QC information as an analysis table to onyx. If
     3 attempts fail due to connections issues the program will exit
     and returns an error. Errors requiring manual fixing are also raised.
@@ -228,7 +228,7 @@ def add_qc_analysis_to_onyx(fields_dict: dict, server: str):
                 result = client.create_analysis(
                     project=server,
                     fields=fields_dict,
-                    test=True
+                    test=dryrun
         )
 
         except OnyxConnectionError as exc:
