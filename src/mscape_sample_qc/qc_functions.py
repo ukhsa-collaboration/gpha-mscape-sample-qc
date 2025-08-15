@@ -215,14 +215,13 @@ def add_qc_analysis_to_onyx(fields_dict: dict, server: str, dryrun: bool) -> str
     """
     # Test connection/creation of table then add table to onyx?
 
-    connection_attempt = 0
+    connection_attempts = 1
     success = False
 
-    while connection_attempt <= 3:
+    while success is False:
         try:
-            connection_attempt += 1
             logging.debug("Attempting connection to Onyx. Attempt number %s",
-                          connection_attempt)
+                          connection_attempts)
 
             with OnyxClient(CONFIG) as client:
                 result = client.create_analysis(
@@ -230,17 +229,23 @@ def add_qc_analysis_to_onyx(fields_dict: dict, server: str, dryrun: bool) -> str
                     fields=fields_dict,
                     test=dryrun
         )
+            success = True
+
+            logging.debug("Successful connection to onyx")
+
+            return result
 
         except OnyxConnectionError as exc:
             if connection_attempts < 3:
+                connection_attempts += 1
                 logging.debug("OnyxConnectionError: %s. Retrying connection in 5 seconds",
-                              exc)
+                              exc.response.json())
                 time.sleep(5)
-                continue
+
             else:
                 logging.error("""OnyxConnectionError: %s. Connection to Onyx failed %s times,
                               exiting program""",
-                              exc.response.json(), connection_attempt)
+                              exc.response.json(), connection_attempts)
                 return
 
         except OnyxConfigError as exc:
@@ -273,5 +278,3 @@ def add_qc_analysis_to_onyx(fields_dict: dict, server: str, dryrun: bool) -> str
                           for more details""",
                           exc.response.json())
             return
-
-    return result
