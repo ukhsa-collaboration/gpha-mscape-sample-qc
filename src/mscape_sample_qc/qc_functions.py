@@ -239,13 +239,14 @@ def add_qc_analysis_to_onyx(fields_dict: dict, server: str, dryrun: bool) -> str
             if connection_attempts < 3:
                 connection_attempts += 1
                 logging.debug("OnyxConnectionError: %s. Retrying connection in 5 seconds",
-                              exc.response.json())
+                              exc)
                 time.sleep(5)
 
             else:
                 logging.error("""OnyxConnectionError: %s. Connection to Onyx failed %s times,
                               exiting program""",
-                              exc.response.json(), connection_attempts)
+                              exc, connection_attempts)
+
                 return
 
         except OnyxConfigError as exc:
@@ -253,7 +254,7 @@ def add_qc_analysis_to_onyx(fields_dict: dict, server: str, dryrun: bool) -> str
                           are correct. See
                           https://climb-tre.github.io/onyx-client/api/documentation/exceptions/
                           for more details.""",
-                          exc.response.json())
+                          exc)
             return
 
         except OnyxClientError as exc:
@@ -261,7 +262,7 @@ def add_qc_analysis_to_onyx(fields_dict: dict, server: str, dryrun: bool) -> str
                           and required arguments e.g. climb_id are present. See
                           https://climb-tre.github.io/onyx-client/api/documentation/exceptions/
                           for more details""",
-                          exc.response.json())
+                          exc)
             return
 
         except OnyxHTTPError as exc:
@@ -276,5 +277,5 @@ def add_qc_analysis_to_onyx(fields_dict: dict, server: str, dryrun: bool) -> str
             logging.error("""Unhandled error: %s. See
                           https://climb-tre.github.io/onyx-client/api/documentation/exceptions/
                           for more details""",
-                          exc.response.json())
+                          exc)
             return
