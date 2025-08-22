@@ -194,10 +194,10 @@ def create_analysis_fields_dict(record_id: str, qc_thresholds: dict, qc_results:
             "pipeline_version": version('mscape-sample-qc'),
             "result": "QC result",
             "report": "",
-            "outputs": "", # NOTE: Add result_file if decide to write to s3 as well as onyx
-            "methods": {'qc_thresholds': qc_thresholds},
-            "result_metrics": qc_results,
-            "records": [record_id],
+            "outputs": "QC result", # NOTE: Placeholder
+            "methods": json.dumps({'qc_thresholds': qc_thresholds}),
+            "result_metrics": json.dumps(qc_results),
+            server_records: [record_id],
             "identifiers": [],
         }
 
