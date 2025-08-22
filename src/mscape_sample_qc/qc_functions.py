@@ -188,7 +188,7 @@ def create_analysis_fields_dict(record_id: str, qc_thresholds: dict, qc_results:
     fields_dict = {
             "name": "ukhsa-classifier-qc-metrics",
             "description": "This is an analysis to generate QC statistics for individual samples",
-            "analysis_date": datetime.datetime.now().date().strftime('%Y-%m-%d'),
+            "analysis_date": datetime.datetime.now().date().isoformat(),
             "pipeline_name": "mscape-sample-qc",
             "pipeline_url": "https://github.com/ukhsa-collaboration/mscape-sample-qc/",
             "pipeline_version": version('mscape-sample-qc'),
