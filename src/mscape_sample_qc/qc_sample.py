@@ -7,10 +7,11 @@ classification. Results are returned in json format.
 
 import argparse
 import logging
-import os
 import sys
-import mscape_sample_qc.qc_functions as qc
 from importlib import resources
+
+import mscape_sample_qc.qc_functions as qc
+
 
 def get_args():
     """Get command line arguments"""

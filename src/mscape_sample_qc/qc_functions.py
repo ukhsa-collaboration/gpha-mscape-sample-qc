@@ -3,23 +3,17 @@
 "Module containing functions required to QC a sample on mscape."
 
 # Imports
-import os
 import datetime
-import time
 import json
-import yaml
 import logging
-import numpy as np
-import pandas as pd
+import os
+import time
 from importlib.metadata import version
-from onyx import OnyxConfig, OnyxClient, OnyxEnv, OnyxField
 
-from onyx.exceptions import (
-    OnyxConnectionError,
-    OnyxConfigError,
-    OnyxClientError,
-    OnyxHTTPError
-)
+import pandas as pd
+import yaml
+from onyx import OnyxClient, OnyxConfig, OnyxEnv
+from onyx.exceptions import OnyxClientError, OnyxConfigError, OnyxConnectionError, OnyxHTTPError
 
 # Set up onyx config
 CONFIG = OnyxConfig(
@@ -28,7 +22,7 @@ CONFIG = OnyxConfig(
 )
 
 # Functions
-def retrieve_sample_information(record_id: str, server: str) -> [pd.DataFrame, dict()]:
+def retrieve_sample_information(record_id: str, server: str) -> [pd.DataFrame, dict]:
     """Retrieves sample information for given climb id. Returns two dataframes:
     - One containing classification information for the sample
     - One containing all other metadata for the sample
@@ -44,7 +38,7 @@ def retrieve_sample_information(record_id: str, server: str) -> [pd.DataFrame, d
 
     return classifier_df, metadata_dict
 
-def read_config_file(config_file: os.path) -> dict():
+def read_config_file(config_file: os.path) -> dict:
     """Reads config file to get QC criteria to filter sequences against.
     Arguments:
         config_file -- yaml file containing QC criteria
@@ -52,12 +46,12 @@ def read_config_file(config_file: os.path) -> dict():
     Returns:
         dictionary of qc criteria
     """
-    with open(config_file, encoding="utf-8") as file:
+    with open(config_file) as file:
         qc_criteria = yaml.safe_load(file)
 
     return qc_criteria
 
-def get_read_proportions(class_calls: pd.DataFrame) -> dict():
+def get_read_proportions(class_calls: pd.DataFrame) -> dict:
     """Gets proportions of reads that are in different subsets of the
     data including % unclassified, % host, % spike-in.
     Arguments:
@@ -68,42 +62,42 @@ def get_read_proportions(class_calls: pd.DataFrame) -> dict():
         metrics.
     """
     taxa_dict = {}
-    taxa_dict["total_reads"] =  class_calls['count_direct'].sum().item()
+    taxa_dict['total_reads'] =  class_calls['count_direct'].sum().item()
 
     try:
-        taxa_dict[f"count_descendants_unclassified"] = class_calls.loc[
+        taxa_dict['count_descendants_unclassified'] = class_calls.loc[
             class_calls['taxon_id'] == 0, 'count_descendants'].item()
-        taxa_dict[f"percentage_unclassified"] = class_calls.loc[
+        taxa_dict['percentage_unclassified'] = class_calls.loc[
             class_calls['taxon_id'] == 0, 'percentage'].item()
     except ValueError:
-        taxa_dict[f"count_descendants_unclassified"] = 0
-        taxa_dict[f"percentage_unclassified"] = 0
+        taxa_dict['count_descendants_unclassified'] = 0
+        taxa_dict['percentage_unclassified'] = 0
 
     try:
-        taxa_dict[f"count_descendants_spike_in"] = class_calls.loc[
+        taxa_dict['count_descendants_spike_in'] = class_calls.loc[
             class_calls['taxon_id'] == 12242, 'count_descendants'].item()
-        taxa_dict[f"percentage_spike_in"] = class_calls.loc[
+        taxa_dict['percentage_spike_in'] = class_calls.loc[
             class_calls['taxon_id'] == 12242, 'percentage'].item()
     except ValueError:
-        taxa_dict[f"count_descendants_spike_in"] = 0
-        taxa_dict[f"percentage_spike_in"] = 0
+        taxa_dict['count_descendants_spike_in'] = 0
+        taxa_dict['percentage_spike_in'] = 0
 
     try:
-        taxa_dict[f"count_descendants_host"] = class_calls.loc[
+        taxa_dict['count_descendants_host'] = class_calls.loc[
             class_calls['taxon_id'] == 9606, 'count_descendants'].item()
-        taxa_dict[f"percentage_host"] = class_calls.loc[
+        taxa_dict['percentage_host'] = class_calls.loc[
             class_calls['taxon_id'] == 9606, 'percentage'].item()
     except ValueError:
-        taxa_dict[f"count_descendants_host"] = 0
-        taxa_dict[f"percentage_host"] = 0
+        taxa_dict['count_descendants_host'] = 0
+        taxa_dict['percentage_host'] = 0
 
     try:
-        taxa_dict[f"count_descendants_genus"] = class_calls.loc[
+        taxa_dict['count_descendants_genus'] = class_calls.loc[
             class_calls['rank'] == "G", 'count_descendants'].sum().item()
-        taxa_dict[f"percentage_genus"] = (taxa_dict[f"count_descendants_genus"]
-                                          / taxa_dict["total_reads"]) * 100
+        taxa_dict['percentage_genus'] = (taxa_dict['count_descendants_genus']
+                                          / taxa_dict['total_reads']) * 100
     except ValueError:
-        taxa_dict[f"count_descendants_genus"] = 0
+        taxa_dict['count_descendants_genus'] = 0
 
     return taxa_dict
 
@@ -119,8 +113,8 @@ def check_thresholds(metadata_dict: dict, threshold_dict: dict) -> dict:
     """
     result_dict = {}
 
-    for metric in threshold_dict.keys():
-        result_dict[f"{metric}"] = metadata_dict[metric]
+    for metric in threshold_dict:
+        result_dict[f'{metric}'] = metadata_dict[metric]
         dict_key = f"{metric}_qc"
         # Large values = better, lower values = fail
         if threshold_dict[metric]['pass'] > threshold_dict[metric]['fail']:
@@ -151,7 +145,7 @@ def check_spike_detected(metadata_dict: dict, qc_dict: dict) -> dict:
         qc_dict -- dictionary containing QC result values that has
         been updated with spike in detection result.
     """
-    if metadata_dict["count_descendants_spike_in"] == 0:
+    if metadata_dict['count_descendants_spike_in'] == 0:
         qc_dict['spike_detected'] = "Fail"
         qc_dict['percentage_spike_in_qc'] = "NA"
     else:
