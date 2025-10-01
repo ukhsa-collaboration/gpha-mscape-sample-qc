@@ -26,7 +26,9 @@ For developers:
 | --help, -h        |    No     | Display help message  |
 | --input , -i      |    Yes    | Climb ID for sample   |
 | --config, -c      |    No     | Specify QC metrics config file to use. If not specified, the default will be used |
-| --output, -o      |    No     | Folder to save QC results to |
+| --output, -o      |    Yes     | Folder to save QC results to |
+| --server, -s      |    Yes    |  Specify server code is being run on. Options: mscape, synthscape |
+| --dry-run, -d     |    No     | Use this option to do a test upload and check for errors before attempting an upload to onyx |
 
 ## Usage
 
