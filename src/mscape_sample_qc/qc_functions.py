@@ -169,6 +169,15 @@ def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: os.path
 
     return result_file
 
+def write_onyx_fields_to_json(fields_dict: dict, sample_id: str, results_dir: os.path) -> os.path:
+    "Write onyx analysis details to json output file."
+    result_file = os.path.join(results_dir, f"{sample_id}_qc_results_onyx.json")
+
+    with open(result_file, "w", encoding = "utf-8") as file:
+        json.dump(fields_dict, file)
+
+    return result_file
+
 def create_analysis_fields_dict(record_id: str, qc_thresholds: dict, qc_results: dict, server: str) -> dict:
     """Set up fields dictionary used to populate analysis table containing
     QC metrics.

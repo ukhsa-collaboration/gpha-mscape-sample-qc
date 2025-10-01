@@ -30,8 +30,14 @@ def get_args():
     parser.add_argument("--server", "-s", type=str, required=True,
                         choices=["mscape", "synthscape"],
                         help="Specify server code is being run on")
-    parser.add_argument("--dry-run", "-d", required=False, action="store_true",
+    parser.add_argument("--no-onyx", required=False, action="store_true",
+                        help="Use this option to only write results to file")
+    parser.add_argument("--store-onyx", required=False, action="store_true",
+                        help="Use this option to store results as an onyx analysis object for later uplaod")
+    parser.add_argument("--test-onyx", required=False, action="store_true",
                         help="Use this option to do a test upload and check for errors before attempting an upload to onyx")
+    parser.add_argument("--prod-onyx", required=False, action="store_true",
+                        help="Use this option to upload results to onyx")
 
     return parser.parse_args()
 
@@ -95,13 +101,25 @@ def main():
     # NOTE: Remove this step if decide to only add results to analysis table
     result_file = qc.write_qc_results_to_json(qc_results, args.input, args.output)
 
+    if args.no_onyx:
+        return result_file
+
     ## Add QC metrics to onyx
     # Set up data for entry in analysis table
     fields_dict = qc.create_analysis_fields_dict(args.input,
                                                  threshold_dict['sample_thresholds'],
                                                  qc_results, args.server)
+
     #Add data to analysis table
-    result = qc.add_qc_analysis_to_onyx(fields_dict, args.server, args.dry_run)
+    if args.store_onyx:
+        result_file = qc.write_onyx_fields_to_json(fields_dict, args.input, args.output)
+        return result_file
+
+    if args.test_onyx:
+        result = qc.add_qc_analysis_to_onyx(fields_dict, args.server, dryrun=True)
+
+    if args.prod_onyx:
+        result = qc.add_qc_analysis_to_onyx(fields_dict, args.server, dryrun=False)
 
     return result
 
