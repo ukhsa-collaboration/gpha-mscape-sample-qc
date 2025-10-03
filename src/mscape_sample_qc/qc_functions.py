@@ -179,33 +179,35 @@ def write_onyx_fields_to_json(fields_dict: dict, sample_id: str, results_dir: os
 
     return result_file
 
-def create_analysis_fields_dict(record_id: str, qc_thresholds: dict, qc_results: dict, server: str) -> dict:
+def create_analysis_fields(record_id: str, qc_thresholds: dict,
+                           qc_results: dict, server: str) -> dict:
     """Set up fields dictionary used to populate analysis table containing
     QC metrics.
      Arguments:
+        record_id -- Climb ID for sample
         qc_thresholds -- Dictionary containing qc criteria used to generate metrics
         qc_results -- Dictionary containing qc results
+        server -- Server code is running on, one of "mscape" or "synthscape"
     Returns:
-        fields_dict -- Dictionary containing required fields for input to analysis table
+        onyx_analysis -- Class containing required fields for input to onyx
+                         analysis table
     """
-    server_records = f"{server}_records"
-    fields_dict = {
-            "name": "ukhsa-classifier-qc-metrics",
-            "description": "This is an analysis to generate QC statistics for individual samples",
-            "analysis_date": datetime.datetime.now().date().isoformat(),
-            "pipeline_name": "mscape-sample-qc",
-            "pipeline_url": "https://github.com/ukhsa-collaboration/mscape-sample-qc/",
-            "pipeline_version": version('mscape-sample-qc'),
-            "result": "QC result",
-            "report": "",
-            "outputs": "QC result", # NOTE: Placeholder
-            "methods": json.dumps({'qc_thresholds': qc_thresholds}),
-            "result_metrics": json.dumps(qc_results),
-            server_records: [record_id],
-            "identifiers": [],
-        }
+    if "Fail" in qc_results.values() or "Warn" in qc_results.values():
+        headline_result = "Warning: Check QC results before use"
+    else:
+        headline_result = "QC results passed thresholds"
 
-    return fields_dict
+    onyx_analysis = oa.OnyxAnalysis()
+    onyx_analysis.add_analysis_details(
+        analysis_name="ukhsa-classifier-qc-metrics",
+        analysis_description="""This is an analysis to generate QC statistics for individual samples"""
+    )
+    onyx_analysis.add_package_metadata(package_name = "mscape-sample-qc")
+    onyx_analysis.add_methods(methods_dict = qc_thresholds)
+    onyx_analysis.add_results(top_result=headline_result, results_dict = qc_results)
+    onyx_analysis.add_server_records(sample_id = record_id, server_name = "synthscape")
+
+    return onyx_analysis
 
 def add_qc_analysis_to_onyx(fields_dict: dict, server: str, dryrun: bool) -> str:
     """Attempts to add QC information as an analysis table to onyx. If
