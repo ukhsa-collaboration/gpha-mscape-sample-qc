@@ -23,6 +23,7 @@ CONFIG = OnyxConfig(
 )
 
 # Functions
+@oa.call_to_onyx
 def retrieve_sample_information(record_id: str, server: str) -> [pd.DataFrame, dict]:
     """Retrieves sample information for given climb id. Returns two dataframes:
     - One containing classification information for the sample
@@ -170,15 +171,6 @@ def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: os.path
 
     return result_file
 
-def write_onyx_fields_to_json(fields_dict: dict, sample_id: str, results_dir: os.path) -> os.path:
-    "Write onyx analysis details to json output file."
-    result_file = os.path.join(results_dir, f"{sample_id}_qc_results_onyx.json")
-
-    with open(result_file, "w", encoding = "utf-8") as file:
-        json.dump(fields_dict, file)
-
-    return result_file
-
 def create_analysis_fields(record_id: str, qc_thresholds: dict,
                            qc_results: dict, server: str) -> dict:
     """Set up fields dictionary used to populate analysis table containing
@@ -208,80 +200,3 @@ def create_analysis_fields(record_id: str, qc_thresholds: dict,
     onyx_analysis.add_server_records(sample_id = record_id, server_name = "synthscape")
 
     return onyx_analysis
-
-def add_qc_analysis_to_onyx(fields_dict: dict, server: str, dryrun: bool) -> str:
-    """Attempts to add QC information as an analysis table to onyx. If
-    3 attempts fail due to connections issues the program will exit
-    and returns an error. Errors requiring manual fixing are also raised.
-
-    Arguments:
-        fields_dict -- Dictionary containing required fields for input to analysis table
-    Returns:
-        Name of analysis
-    """
-    # Test connection/creation of table then add table to onyx?
-
-    connection_attempts = 1
-    success = False
-
-    while success is False:
-        try:
-            logging.debug("Attempting connection to Onyx. Attempt number %s",
-                          connection_attempts)
-
-            with OnyxClient(CONFIG) as client:
-                result = client.create_analysis(
-                    project=server,
-                    fields=fields_dict,
-                    test=dryrun
-        )
-            success = True
-
-            logging.debug("Successful connection to onyx")
-
-            return result
-
-        except OnyxConnectionError as exc:
-            if connection_attempts < 3:
-                connection_attempts += 1
-                logging.debug("OnyxConnectionError: %s. Retrying connection in 5 seconds",
-                              exc)
-                time.sleep(5)
-
-            else:
-                logging.error("""OnyxConnectionError: %s. Connection to Onyx failed %s times,
-                              exiting program""",
-                              exc, connection_attempts)
-
-                return
-
-        except OnyxConfigError as exc:
-            logging.error("""OnyxConfigError: %s. Check credentials and details in OnyxConfig
-                          are correct. See
-                          https://climb-tre.github.io/onyx-client/api/documentation/exceptions/
-                          for more details.""",
-                          exc)
-            return
-
-        except OnyxClientError as exc:
-            logging.error("""OnyxClientError: %s. Check calls to OnyxClient are correct
-                          and required arguments e.g. climb_id are present. See
-                          https://climb-tre.github.io/onyx-client/api/documentation/exceptions/
-                          for more details""",
-                          exc)
-            return
-
-        except OnyxHTTPError as exc:
-            logging.error("""OnyxHTTPError: %s. See
-                          https://climb-tre.github.io/onyx-client/api/documentation/exceptions/
-                          for more details""",
-                          exc.response.json())
-
-            return
-
-        except Exception as exc:
-            logging.error("""Unhandled error: %s. See
-                          https://climb-tre.github.io/onyx-client/api/documentation/exceptions/
-                          for more details""",
-                          exc)
-            return
