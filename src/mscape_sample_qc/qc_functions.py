@@ -38,7 +38,7 @@ def retrieve_sample_information(record_id: str, server: str) -> [pd.DataFrame, d
     # Pop the classifier information from the record dictionary object and convert to df:
     classifier_df = pd.DataFrame(metadata_dict.pop('classifier_calls'))
 
-    return classifier_df, metadata_dict
+    return classifier_df
 
 def read_config_file(config_file: os.path) -> dict:
     """Reads config file to get QC criteria to filter sequences against.
@@ -103,57 +103,52 @@ def get_read_proportions(class_calls: pd.DataFrame) -> dict:
 
     return taxa_dict
 
-def check_thresholds(metadata_dict: dict, threshold_dict: dict) -> dict:
+def check_thresholds(result_dict: dict, threshold_dict: dict) -> dict:
     """For each threshold, check if value falls with pass/warn/fail
     ranges and return value as appropriate.
     Arguments:
-        metadata_dict -- dictionary containing metadata information
+        qc_results_dict -- dictionary containing metadata information
         threshold_dict -- dictionary containing threshold values to
         compare sample values from metadata_dict against.
     Returns:
         result_dict -- dictionary containing QC result values
     """
-    result_dict = {}
-
     for metric in threshold_dict:
-        result_dict[f'{metric}'] = metadata_dict[metric]
         dict_key = f"{metric}_qc"
         # Large values = better, lower values = fail
         if threshold_dict[metric]['pass'] > threshold_dict[metric]['fail']:
-            if metadata_dict[metric] >= threshold_dict[metric]['pass']:
+            if result_dict[metric] >= threshold_dict[metric]['pass']:
                 result_dict[dict_key] = "Pass"
-            elif metadata_dict[metric] > threshold_dict[metric]['fail']:
+            elif result_dict[metric] > threshold_dict[metric]['fail']:
                 result_dict[dict_key] = "Warn"
-            elif metadata_dict[metric] <= threshold_dict[metric]['fail']:
+            elif result_dict[metric] <= threshold_dict[metric]['fail']:
                 result_dict[dict_key] = "Fail"
         # Large values = fail, lower values = pass
         else:
-            if metadata_dict[metric] <= threshold_dict[metric]['pass']:
+            if result_dict[metric] <= threshold_dict[metric]['pass']:
                 result_dict[dict_key] = "Pass"
-            elif metadata_dict[metric] < threshold_dict[metric]['fail']:
+            elif result_dict[metric] < threshold_dict[metric]['fail']:
                 result_dict[dict_key] = "Warn"
-            elif metadata_dict[metric] >= threshold_dict[metric]['fail']:
+            elif result_dict[metric] >= threshold_dict[metric]['fail']:
                 result_dict[dict_key] = "Fail"
 
     return result_dict
 
-def check_spike_detected(metadata_dict: dict, qc_dict: dict) -> dict:
+def check_spike_detected(qc_results_dict: dict) -> dict:
     """Check if spike in detected and add results to qc results dict
     Arguments:
-        metadata_dict -- dictionary containing metadata information
-        threshold_dict -- dictionary containing threshold values to
-        compare sample values from metadata_dict against.
+        qc_results_dict -- dictionary containing Qc result information
     Returns:
-        qc_dict -- dictionary containing QC result values that has
+        qc_results_dict -- dictionary containing QC result values that has
         been updated with spike in detection result.
     """
-    if metadata_dict['count_descendants_spike_in'] == 0:
-        qc_dict['spike_detected'] = "Fail"
-        qc_dict['percentage_spike_in_qc'] = "NA"
+    if qc_results_dict['count_descendants_spike_in'] == 0:
+        qc_results_dict['spike_detected'] = "Fail"
+        qc_results_dict['percentage_spike_in_qc'] = "NA"
     else:
-        qc_dict['spike_detected'] = "Pass"
+        qc_results_dict['spike_detected'] = "Pass"
 
-    return qc_dict
+    return qc_results_dict
 
 def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: os.path) -> os.path:
     """Write qc results dictionary to json output file.

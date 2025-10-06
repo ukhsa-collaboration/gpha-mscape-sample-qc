@@ -85,21 +85,20 @@ def main():
 
     ## Set up data needed for report
     # Retrieve classifier calls and metadata for record
-    class_df, metadata_dict = qc.retrieve_sample_information(args.input, args.server)
+    class_df = qc.retrieve_sample_information(args.input, args.server)
 
     # Calculate proportions for key metrics based on classification
     # information and add to the metadata dict
-    proportion_data = qc.get_read_proportions(class_df)
-    metadata_dict.update(proportion_data)
+    qc_results_dict = qc.get_read_proportions(class_df)
 
     # Get qc status for relevant sample level metrics
-    qc_results = qc.check_thresholds(metadata_dict, threshold_dict['sample_thresholds'])
+    qc_results_dict = qc.check_thresholds(qc_results_dict, threshold_dict['sample_thresholds'])
 
     # Check spike detected
-    qc_results = qc.check_spike_detected(metadata_dict, qc_results)
+    qc_results_dict = qc.check_spike_detected(qc_results_dict)
 
     # NOTE: Remove this step if decide to only add results to analysis table
-    result_file = qc.write_qc_results_to_json(qc_results, args.input, args.output)
+    qc_result_file = qc.write_qc_results_to_json(qc_results_dict, args.input, args.output)
 
     if args.no_onyx:
         return result_file
