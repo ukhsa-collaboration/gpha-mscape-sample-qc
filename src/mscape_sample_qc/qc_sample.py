@@ -7,6 +7,7 @@ classification. Results are returned in json format.
 
 import argparse
 import logging
+import os
 import sys
 from importlib import resources
 
@@ -101,24 +102,26 @@ def main():
     qc_result_file = qc.write_qc_results_to_json(qc_results_dict, args.input, args.output)
 
     if args.no_onyx:
-        return result_file
+        return qc_result_file
 
     ## Add QC metrics to onyx
     # Set up data for entry in analysis table
-    fields_dict = qc.create_analysis_fields_dict(args.input,
-                                                 threshold_dict['sample_thresholds'],
-                                                 qc_results, args.server)
+    onyx_analysis = qc.create_analysis_fields(args.input,
+                                              threshold_dict['sample_thresholds'],
+                                              qc_results_dict,
+                                              args.server)
 
     #Add data to analysis table
     if args.store_onyx:
-        result_file = qc.write_onyx_fields_to_json(fields_dict, args.input, args.output)
-        return result_file
+        onyx_json_file = os.path.join(args.output, f"{args.input}_qc_metrics_analysis_fields.json")
+        result = onyx_analysis.write_analysis_to_json(result_file = onyx_json_file)
+        return result
 
     if args.test_onyx:
-        result = qc.add_qc_analysis_to_onyx(fields_dict, args.server, dryrun=True)
+        result = onyx_analysis.write_analysis_to_onyx(server = args.server, dryrun = True)
 
     if args.prod_onyx:
-        result = qc.add_qc_analysis_to_onyx(fields_dict, args.server, dryrun=False)
+        result = onyx_analysis.write_analysis_to_onyx(server = args.server, dryrun = False)
 
     return result
 
