@@ -1,0 +1,16 @@
+sample_thresholds:
+    total_reads:
+        pass: 10000
+        fail: 2000
+    percentage_spike_in:
+        pass: 5
+        fail: 20
+    percentage_host:
+        pass: 5
+        fail: 10
+    percentage_unclassified:
+        pass: 10
+        fail: 30
+    percentage_genus:
+        pass: 80
+        fail: 60
