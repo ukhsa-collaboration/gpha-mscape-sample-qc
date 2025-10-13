@@ -151,6 +151,15 @@ def check_spike_detected(qc_results_dict: dict) -> dict:
 
     return qc_results_dict
 
+def get_headline_result(qc_results) -> str:
+    "Checks QC results and assigns a top level result"
+    if "Fail" in qc_results.values() or "Warn" in qc_results.values():
+        headline_result = "Warning: Check QC results before use"
+    else:
+        headline_result = "QC results passed thresholds"
+
+    return headline_result
+
 def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: os.path) -> os.path:
     """Write qc results dictionary to json output file.
     Arguments:
