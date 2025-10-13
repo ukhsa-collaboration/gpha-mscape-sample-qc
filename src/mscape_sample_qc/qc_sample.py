@@ -126,16 +126,18 @@ def main():
     #Add data to analysis table
     if args.store_onyx:
         onyx_json_file = os.path.join(args.output, f"{args.input}_qc_metrics_analysis_fields.json")
-        result = onyx_analysis.write_analysis_to_json(result_file = onyx_json_file)
-        return result
+        result_file = onyx_analysis.write_analysis_to_json(result_file = onyx_json_file)
+        logging.info("Onyx analysis fields written to file %s", result_file)
+        exitcode = 0
+        return result_file, exitcode
 
     if args.test_onyx:
-        result = onyx_analysis.write_analysis_to_onyx(server = args.server, dryrun = True)
+        result, exitcode = onyx_analysis.write_analysis_to_onyx(server = args.server, dryrun = True)
 
     if args.prod_onyx:
-        result = onyx_analysis.write_analysis_to_onyx(server = args.server, dryrun = False)
+        result, exitcode = onyx_analysis.write_analysis_to_onyx(server = args.server, dryrun = False)
 
-    return result
+    return result, exitcode
 
 if __name__ == '__main__':
     sys.exit(main())
