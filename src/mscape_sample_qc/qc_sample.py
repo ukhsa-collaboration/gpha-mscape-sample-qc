@@ -75,11 +75,12 @@ def set_up_logger(stdout_file):
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s")
 
-    out_handler = logging.FileHandler(stdout_file, mode = "a")
+    out_handler = logging.FileHandler(stdout_file, mode="a")
     out_handler.setFormatter(formatter)
     logger.addHandler(out_handler)
 
     return logger
+
 
 def main():
     "Main function to process a given sample through QC."
