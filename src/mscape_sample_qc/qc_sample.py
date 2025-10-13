@@ -111,10 +111,17 @@ def main():
 
     ## Add QC metrics to onyx
     # Set up data for entry in analysis table
-    onyx_analysis = qc.create_analysis_fields(args.input,
-                                              threshold_dict['sample_thresholds'],
-                                              qc_results_dict,
-                                              args.server)
+    headline_result = qc.get_headline_result(qc_results_dict)
+    onyx_analysis, exitcode = qc.create_analysis_fields(args.input,
+                                                  threshold_dict['sample_thresholds'],
+                                                  qc_results_dict,
+                                                  args.server,
+                                                  headline_result,
+                                                  qc_result_file)
+
+    if exitcode == 1:
+        logging.error("Invalid attribute in analysis fields submitted, check logs for details")
+        return exitcode
 
     #Add data to analysis table
     if args.store_onyx:
