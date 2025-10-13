@@ -38,25 +38,26 @@ def get_args():
         choices=["mscape", "synthscape"],
         help="Specify server code is being run on",
     )
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
         "--no-onyx",
         required=False,
         action="store_true",
         help="Use this option to only write results to file",
     )
-    parser.add_argument(
+    group.add_argument(
         "--store-onyx",
         required=False,
         action="store_true",
         help="Use this option to store results as an onyx analysis object for later uplaod",
     )
-    parser.add_argument(
+    group.add_argument(
         "--test-onyx",
         required=False,
         action="store_true",
         help="Use this option to do a test upload and check for errors before attempting an upload to onyx",
     )
-    parser.add_argument(
+    group.add_argument(
         "--prod-onyx",
         required=False,
         action="store_true",
