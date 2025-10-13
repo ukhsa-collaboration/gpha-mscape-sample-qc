@@ -177,31 +177,35 @@ def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: os.path
     return result_file
 
 def create_analysis_fields(record_id: str, qc_thresholds: dict,
-                           qc_results: dict, server: str) -> dict:
+                           qc_results: dict, server: str,
+                           headline_result: str, result_file: os.path) -> dict:
     """Set up fields dictionary used to populate analysis table containing
     QC metrics.
-     Arguments:
+    Arguments:
         record_id -- Climb ID for sample
         qc_thresholds -- Dictionary containing qc criteria used to generate metrics
         qc_results -- Dictionary containing qc results
         server -- Server code is running on, one of "mscape" or "synthscape"
+        result_file -- location of QC metrics results
     Returns:
         onyx_analysis -- Class containing required fields for input to onyx
                          analysis table
     """
-    if "Fail" in qc_results.values() or "Warn" in qc_results.values():
-        headline_result = "Warning: Check QC results before use"
-    else:
-        headline_result = "QC results passed thresholds"
-
     onyx_analysis = oa.OnyxAnalysis()
     onyx_analysis.add_analysis_details(
         analysis_name="ukhsa-classifier-qc-metrics",
         analysis_description="""This is an analysis to generate QC statistics for individual samples"""
     )
     onyx_analysis.add_package_metadata(package_name = "mscape-sample-qc")
-    onyx_analysis.add_methods(methods_dict = qc_thresholds)
-    onyx_analysis.add_results(top_result=headline_result, results_dict = qc_results)
+    methods_fail = onyx_analysis.add_methods(methods_dict = qc_thresholds)
+    results_fail = onyx_analysis.add_results(top_result = headline_result, results_dict = qc_results)
     onyx_analysis.add_server_records(sample_id = record_id, server_name = "synthscape")
+    output_fail = onyx_analysis.add_output_location(result_file)
+    required_field_fail, attribute_fail = onyx_analysis.check_analysis_object()
 
-    return onyx_analysis
+    if any([methods_fail, results_fail, output_fail, required_field_fail, attribute_fail]):
+        exitcode = 1
+    else:
+        exitcode = 0
+
+    return onyx_analysis, exitcode
