@@ -74,6 +74,20 @@ def expected_result_dict():
     return result_df
 
 @pytest.fixture
+def expected_result_dict_passes():
+    result_df = {"total_reads": 10,
+                 "count_descendants_unclassified": 6, "percentage_unclassified": 60.0,
+                 "count_descendants_spike_in": 2, "percentage_spike_in": 20.0,
+                 "count_descendants_host": 1, "percentage_host": 10.0,
+                 "count_descendants_genus": 4, "percentage_genus": 40.0,
+                 "total_reads_qc": "Pass", "percentage_spike_in_qc": "Pass",
+                 "percentage_unclassified_qc": "Pass",
+                 "percentage_genus_qc": "Pass", "percentage_host_qc": "Pass",
+                 "spike_detected": "Pass"}
+
+    return result_df
+
+@pytest.fixture
 def expected_fields_dict(expected_config_dict, expected_result_dict):
     fields_dict = {"name": "ukhsa-classifier-qc-metrics",
                    "description": "This is an analysis to generate QC statistics for individual samples",
@@ -84,13 +98,24 @@ def expected_fields_dict(expected_config_dict, expected_result_dict):
                    "methods": json.dumps(expected_config_dict),
                    "result": "Warning: Check QC results before use",
                    "result_metrics": json.dumps(expected_result_dict),
-                   "synthscape_records": ["C-123456789"], "identifiers": []}
+                   "report": "tests/test_data/C-123456789_qc_results.json",
+                   "synthscape_records": ["C-123456789"],
+                   "identifiers": []}
 
     return fields_dict
+
+
+@pytest.fixture
+def expected_result_file():
+    file = "tests/test_data/C-123456789_qc_results.json"
+
+    return file
+
 
 @pytest.fixture
 def qc_json_file_path(tmp_path_factory):
     tmp_dir = tmp_path_factory.mktemp("onyx_analysis_tests")
+
     return str(tmp_dir)
 
 # Tests - those marked skip need test data making/some additional work
@@ -131,10 +156,39 @@ def test_write_qc_results_to_json(expected_result_dict, qc_json_file_path):
 
     assert os.path.exists(qc_file)
 
-def test_create_analysis_fields(expected_config_dict, expected_result_dict, expected_fields_dict):
+def test_create_analysis_fields_pass(expected_config_dict, expected_result_dict,
+                                     expected_fields_dict, expected_result_file):
 
-    onyx_analysis = qc.create_analysis_fields("C-123456789", expected_config_dict,
-                                              expected_result_dict, "testserver")
-    print(expected_fields_dict)
+    onyx_analysis, exitcode = qc.create_analysis_fields("C-123456789", expected_config_dict,
+                                                        expected_result_dict, "testserver",
+                                                        "Warning: Check QC results before use",
+                                                        expected_result_file)
     print(onyx_analysis.__dict__)
+
     assert onyx_analysis.__dict__ == expected_fields_dict
+    assert exitcode == 0
+
+
+def test_create_analysis_fields_fail(expected_config_dict, expected_fields_dict,
+                                     expected_result_dict, expected_result_file):
+
+    onyx_analysis, exitcode = qc.create_analysis_fields("C-123456789", expected_config_dict,
+                                                        expected_result_dict, "testserver",
+                                                        "Warning: Check QC results before use",
+                                                        "not a file path or dir")
+    print(onyx_analysis.__dict__)
+
+    assert exitcode == 1
+
+def test_get_headline_result_pass(expected_result_dict_passes):
+
+    headline_result = qc.get_headline_result(expected_result_dict_passes)
+
+    assert headline_result == "QC results passed thresholds"
+
+
+def test_get_headline_result_warning(expected_result_dict):
+
+    headline_result = qc.get_headline_result(expected_result_dict)
+
+    assert headline_result == "Warning: Check QC results before use"
