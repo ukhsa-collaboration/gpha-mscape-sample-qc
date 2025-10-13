@@ -28,12 +28,16 @@ For developers:
 | --config, -c      |    No     | Specify QC metrics config file to use. If not specified, the default will be used |
 | --output, -o      |    Yes     | Folder to save QC results to |
 | --server, -s      |    Yes    |  Specify server code is being run on. Options: mscape, synthscape |
-| --dry-run, -d     |    No     | Use this option to do a test upload and check for errors before attempting an upload to onyx |
+| --no-onyx         |    No     | Use this option to write QC results to file with no onyx steps |
+| --store-onyx      |    No     | Use this option to write QC results to file and create an onyx analysis object that is written to file for later upload |
+| --test-onyx         |    No     | Use this option to write QC results to file and test submitting an onyx analysis object to onyx |
+| --prod-onyx         |    No     | Use this option to write QC results to file and submit an onyx analysis object to onyx |
+
 
 ## Usage
 
-Example command using default config file and output to current directory:  
-`qc_sample --input "C-1234" --output .`
+Example command using default config file and output QC results file to current directory:
+`qc_sample --input <sample_id> --output . --server "synthscape" --no-onyx`
 
-Example command specifying config file and output directory path:  
-`qc_sample --input "C-1234" --config /path/to/config/config_file.yaml --output /path/to/results/`
+Example command specifying config file and output dir, and testing submission to onyx:
+`qc_sample --input  --config </path/to/config/config_file.yaml> --output </path/to/results/> --server synthscape --test-onyx`

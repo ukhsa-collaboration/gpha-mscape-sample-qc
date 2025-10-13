@@ -1,0 +1,17 @@
+taxon_id,human_readable,percentage,count_descendants,count_direct,rank,raw_rank,is_spike_in
+0,unclassified,60.0,6,6,U,U,False
+1,root,33.33,4,0,R,R,False
+10239,Viruses,30.0,3,0,D,D,False
+2559587,Riboviria,10.0,1,0,D,D1,False
+2732396,Orthornavirae,10.0,1,0,K,K,False
+2497569,Negarnaviricota,10.0,1,0,P,P,False
+2497571,Polyploviricotina,10.0,1,0,P,P1,False
+2497576,Ellioviricetes,10.0,1,0,C,C,False
+1980410,Bunyavirales,10.0,1,0,O,O,False
+11617,Arenaviridae,10.0,1,0,F,F,False
+1653394,Mammarenavirus,10.0,1,0,G,G,False
+3052314,Mammarenavirus lujoense,10.0,1,1,S,S,False
+12234,Tobamoviridae,20.0,2,0,G,G,False
+12242,Tobacco mosaic virus,20.0,2,2,S,S,True
+9605,Homo,10.0,1,0,G,G,False
+9606,Homo sapiens,10.0,1,1,S,S,False

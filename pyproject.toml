@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Code base to QC mscape sample"
 authors = [{name = "Deborah Greer", email = "deborah.greer@ukhsa.gov.uk"}]
 requires-python = ">=3.12"
-dependencies = ["pandas", "pyyaml", "climb-onyx-client"]
+dependencies = ["pandas", "pyyaml", "climb-onyx-client", "onyx-analysis-helper@git+https://github.com/ukhsa-collaboration/onyx-analysis-helper.git"]
 
 [tool.setuptools.dynamic]
 version = {attr = "mscape_sample_qc.__version__"}
