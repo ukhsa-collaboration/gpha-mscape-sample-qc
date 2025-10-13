@@ -106,7 +106,8 @@ def main():
     qc_result_file = qc.write_qc_results_to_json(qc_results_dict, args.input, args.output)
 
     if args.no_onyx:
-        return qc_result_file
+        exitcode = 0
+        return qc_result_file, exitcode
 
     ## Add QC metrics to onyx
     # Set up data for entry in analysis table
