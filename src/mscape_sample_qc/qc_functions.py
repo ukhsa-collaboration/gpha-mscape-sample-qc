@@ -5,6 +5,7 @@
 # Imports
 import json
 import os
+from pathlib import Path
 
 import pandas as pd
 import yaml
@@ -44,7 +45,7 @@ def read_config_file(config_file: os.path) -> dict:
     Returns:
         dictionary of qc criteria
     """
-    with open(config_file) as file:
+    with Path(config_file).open("r") as file:
         qc_criteria = yaml.safe_load(file)
 
     return qc_criteria
@@ -76,10 +77,10 @@ def get_read_proportions(class_calls: pd.DataFrame) -> dict:
 
     try:
         taxa_dict["count_descendants_spike_in"] = class_calls.loc[
-            class_calls["is_spike_in"] == True, "count_descendants"
+            class_calls["is_spike_in"], "count_descendants"
         ].item()
         taxa_dict["percentage_spike_in"] = class_calls.loc[
-            class_calls["is_spike_in"] == True, "percentage"
+            class_calls["is_spike_in"], "percentage"
         ].item()
     except ValueError:
         taxa_dict["count_descendants_spike_in"] = 0
@@ -177,9 +178,9 @@ def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: os.path
     Returns:
         os.path of saved json file
     """
-    result_file = os.path.join(results_dir, f"{sample_id}_qc_results.json")
+    result_file = Path(results_dir) / f"{sample_id}_qc_results.json"
 
-    with open(result_file, "w", encoding="utf-8") as file:
+    with Path(result_file).open("w") as file:
         json.dump(qc_dict, file)
 
     return result_file

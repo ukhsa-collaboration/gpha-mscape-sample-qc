@@ -7,9 +7,9 @@ classification. Results are returned in json format.
 
 import argparse
 import logging
-import os
 import sys
 from importlib import resources
+from pathlib import Path
 
 import mscape_sample_qc.qc_functions as qc
 
@@ -154,7 +154,7 @@ def main():
 
     # Add data to analysis table
     if args.store_onyx:
-        onyx_json_file = os.path.join(args.output, f"{args.input}_qc_metrics_analysis_fields.json")
+        onyx_json_file = Path(args.output) / f"{args.input}_qc_metrics_analysis_fields.json"
         result_file = onyx_analysis.write_analysis_to_json(result_file=onyx_json_file)
         logging.info("Onyx analysis fields written to file %s", result_file)
         exitcode = 0

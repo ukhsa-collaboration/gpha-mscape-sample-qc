@@ -5,6 +5,7 @@ Tests for qc metric functions
 import datetime
 import json
 import os
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -56,7 +57,7 @@ def expected_config_dict():
 
 @pytest.fixture
 def example_classifier_df():  # From retrieve sample info
-    with open("tests/test_data/example_classifier_calls.csv") as file:
+    with Path("tests/test_data/example_classifier_calls.csv").open("r") as file:
         class_df = pd.read_csv(file)
 
     return class_df
@@ -225,7 +226,7 @@ def test_spike_detected(expected_threshold_dict, expected_result_dict):
 def test_write_qc_results_to_json(expected_result_dict, qc_json_file_path):
     qc_file = qc.write_qc_results_to_json(expected_result_dict, "C-123456789", qc_json_file_path)
 
-    assert os.path.exists(qc_file)
+    assert Path.exists(qc_file)
 
 
 def test_create_analysis_fields_pass(
