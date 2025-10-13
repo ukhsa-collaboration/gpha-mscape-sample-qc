@@ -82,11 +82,15 @@ def main():
         threshold_dict = qc.read_config_file(args.config)
     except FileNotFoundError:
         logging.error("Specified config file not found, exiting program")
-        return
+        exitcode = 1
+        return exitcode
 
     ## Set up data needed for report
     # Retrieve classifier calls and metadata for record
-    class_df = qc.retrieve_sample_information(args.input, args.server)
+    class_df, exitcode = qc.retrieve_sample_information(args.input, args.server)
+
+    if exitcode == 1:
+        return exitcode
 
     # Calculate proportions for key metrics based on classification
     # information and add to the metadata dict

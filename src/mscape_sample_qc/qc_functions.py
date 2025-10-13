@@ -37,8 +37,9 @@ def retrieve_sample_information(record_id: str, server: str) -> [pd.DataFrame, d
 
     # Pop the classifier information from the record dictionary object and convert to df:
     classifier_df = pd.DataFrame(metadata_dict.pop('classifier_calls'))
+    exitcode = 0
 
-    return classifier_df
+    return classifier_df, exitcode
 
 def read_config_file(config_file: os.path) -> dict:
     """Reads config file to get QC criteria to filter sequences against.
