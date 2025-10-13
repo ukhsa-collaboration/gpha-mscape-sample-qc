@@ -78,9 +78,9 @@ def get_read_proportions(class_calls: pd.DataFrame) -> dict:
 
     try:
         taxa_dict['count_descendants_spike_in'] = class_calls.loc[
-            class_calls['taxon_id'] == 12242, 'count_descendants'].item()
+            class_calls['is_spike_in'] == True, 'count_descendants'].item()
         taxa_dict['percentage_spike_in'] = class_calls.loc[
-            class_calls['taxon_id'] == 12242, 'percentage'].item()
+            class_calls['is_spike_in'] == True, 'percentage'].item()
     except ValueError:
         taxa_dict['count_descendants_spike_in'] = 0
         taxa_dict['percentage_spike_in'] = 0
