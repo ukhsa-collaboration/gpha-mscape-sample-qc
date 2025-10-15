@@ -3,12 +3,9 @@ name: Docker
 on:
   workflow_run:
     workflows: ["mscape_test_build_workflow"]
-    types:
-      - completed
-    branches:
-      - main
-      - dev
-    
+    types: ["completed"]
+    branches: ["main", "dev"]
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
