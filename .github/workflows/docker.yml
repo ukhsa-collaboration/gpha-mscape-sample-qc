@@ -5,6 +5,8 @@ on:
     workflows: ["mscape_test_build_workflow"]
     types: ["completed"]
     branches: ["main", "dev"]
+  pull_request:
+    branches: ["main"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
