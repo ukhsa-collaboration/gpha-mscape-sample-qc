@@ -1,0 +1,1 @@
+recursive-include src/mscape_sample_qc/lib/*.yaml
