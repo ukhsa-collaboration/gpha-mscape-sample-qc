@@ -89,7 +89,7 @@ def main():
     args = get_args()
 
     # Set up log file
-    log_file = "/home/jovyan/shared-team/component_logs/mscape-sample-qc_logfile.txt"
+    log_file = Path(args.output) / f"{args.input}_qc_metrics_log.txt"
     set_up_logger(log_file)
 
     # Use default config if file is not supplied
