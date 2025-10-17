@@ -9,6 +9,13 @@ dependencies = ["pandas", "pyyaml", "climb-onyx-client", "onyx-analysis-helper@g
 [tool.setuptools.dynamic]
 version = {attr = "mscape_sample_qc.__version__"}
 
+[tool.setuptools]
+package-dir = { "" = "src" }
+packages = ["mscape_sample_qc"]
+
+[tool.setuptools.package-data]
+"mscape_sample_qc.lib" = ["*.yaml"]
+
 [project.optional-dependencies]
 dev = ["ruff>=0.4.10,<0.5", "pytest", "pytest-cov"]
 

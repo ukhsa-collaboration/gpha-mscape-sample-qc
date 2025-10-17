@@ -94,9 +94,8 @@ def main():
 
     # Use default config if file is not supplied
     if not args.config:
-        lib_path = resources.files("mscape_sample_qc") / "lib"
-        with resources.as_file(lib_path / "qc_thresholds.yaml") as config_path:
-            args.config = str(config_path)
+        config_path = resources.files("mscape_sample_qc.lib").joinpath( "qc_thresholds.yaml")
+        args.config = str(config_path)
         logging.info(
             "No config file specified, using default parameters from file: %s", args.config
         )
