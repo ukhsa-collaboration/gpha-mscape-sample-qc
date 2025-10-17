@@ -14,7 +14,7 @@ package-dir = { "" = "src" }
 packages = ["mscape_sample_qc"]
 
 [tool.setuptools.package-data]
-"mscape_sample_qc.lib" = ["*.yaml"]
+"lib" = ["*.yaml"]
 
 [project.optional-dependencies]
 dev = ["ruff>=0.4.10,<0.5", "pytest", "pytest-cov"]
