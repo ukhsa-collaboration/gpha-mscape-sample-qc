@@ -133,7 +133,7 @@ def main():
 
     if args.no_onyx:
         exitcode = 0
-        return str(qc_result_file), exitcode
+        return exitcode
 
     ## Add QC metrics to onyx
     # Set up data for entry in analysis table
@@ -157,7 +157,7 @@ def main():
         result_file = onyx_analysis.write_analysis_to_json(result_file=onyx_json_file)
         logging.info("Onyx analysis fields written to file %s", result_file)
         exitcode = 0
-        return str(result_file), exitcode
+        return exitcode
 
     if args.test_onyx:
         result, exitcode = onyx_analysis.write_analysis_to_onyx(server=args.server, dryrun=True)
@@ -165,8 +165,7 @@ def main():
     if args.prod_onyx:
         result, exitcode = onyx_analysis.write_analysis_to_onyx(server=args.server, dryrun=False)
 
-    return result, exitcode
-
+    return exitcode
 
 if __name__ == "__main__":
     sys.exit(main())
