@@ -49,7 +49,7 @@ def get_args():
         "--store-onyx",
         required=False,
         action="store_true",
-        help="Use this option to store results as an onyx analysis object for later uplaod",
+        help="Use this option to store results as an onyx analysis object for later upload",
     )
     group.add_argument(
         "--test-onyx",
