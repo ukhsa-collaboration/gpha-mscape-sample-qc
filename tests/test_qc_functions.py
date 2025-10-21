@@ -236,7 +236,7 @@ def test_create_analysis_fields_pass(
         "C-123456789",
         expected_config_dict,
         expected_result_dict,
-        "testserver",
+        "synthscape",
         "Warning: Check QC results before use",
         expected_result_file,
     )
@@ -253,7 +253,7 @@ def test_create_analysis_fields_fail(
         "C-123456789",
         expected_config_dict,
         expected_result_dict,
-        "testserver",
+        "synthscape",
         "Warning: Check QC results before use",
         "not a file path or dir",
     )
