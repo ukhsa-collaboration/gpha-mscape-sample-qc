@@ -187,13 +187,14 @@ def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: os.path
 
 
 def create_analysis_fields(
-    record_id: str, qc_thresholds: dict, qc_results: dict, server: str, headline_result: str
+    record_id: str, qc_thresholds: dict, headline_result: str, qc_results: dict, server: str
 ) -> dict:
     """Set up fields dictionary used to populate analysis table containing
     QC metrics.
     Arguments:
         record_id -- Climb ID for sample
         qc_thresholds -- Dictionary containing qc criteria used to generate metrics
+        headline_result -- Short description of main result
         qc_results -- Dictionary containing qc results
         server -- Server code is running on, one of "mscape" or "synthscape"
     Returns:
