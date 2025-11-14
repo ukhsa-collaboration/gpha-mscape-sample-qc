@@ -99,7 +99,7 @@ def get_read_proportions(class_calls: pd.DataFrame) -> dict:
 
     try:
         taxa_dict["count_descendants_genus"] = (
-            class_calls.loc[class_calls["rank"] == "G", "count_descendants"].sum().item()
+            class_calls.loc[class_calls["raw_rank"] == "G", "count_descendants"].sum().item()
         )
         taxa_dict["percentage_genus"] = (
             taxa_dict["count_descendants_genus"] / taxa_dict["total_reads"]
