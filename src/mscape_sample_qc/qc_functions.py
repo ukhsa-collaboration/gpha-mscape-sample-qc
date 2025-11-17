@@ -99,7 +99,7 @@ def get_read_proportions(class_calls: pd.DataFrame) -> dict:
 
     try:
         taxa_dict["count_descendants_genus"] = (
-            class_calls.loc[class_calls["rank"] == "G", "count_descendants"].sum().item()
+            class_calls.loc[class_calls["raw_rank"] == "G", "count_descendants"].sum().item()
         )
         taxa_dict["percentage_genus"] = (
             taxa_dict["count_descendants_genus"] / taxa_dict["total_reads"]
@@ -187,24 +187,20 @@ def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: os.path
 
 
 def create_analysis_fields(
-    record_id: str,
-    qc_thresholds: dict,
-    qc_results: dict,
-    server: str,
-    headline_result: str,
-    result_file: os.path,
+    record_id: str, qc_thresholds: dict, headline_result: str, qc_results: dict, server: str
 ) -> dict:
     """Set up fields dictionary used to populate analysis table containing
     QC metrics.
     Arguments:
         record_id -- Climb ID for sample
         qc_thresholds -- Dictionary containing qc criteria used to generate metrics
+        headline_result -- Short description of main result
         qc_results -- Dictionary containing qc results
         server -- Server code is running on, one of "mscape" or "synthscape"
-        result_file -- location of QC metrics results
     Returns:
         onyx_analysis -- Class containing required fields for input to onyx
                          analysis table
+        exitcode -- Exit code for checks - will be 0 if all checks passed, 1 if any checks failed
     """
     onyx_analysis = oa.OnyxAnalysis()
     onyx_analysis.add_analysis_details(
@@ -215,10 +211,11 @@ def create_analysis_fields(
     methods_fail = onyx_analysis.add_methods(methods_dict=qc_thresholds)
     results_fail = onyx_analysis.add_results(top_result=headline_result, results_dict=qc_results)
     onyx_analysis.add_server_records(sample_id=record_id, server_name=server)
-    output_fail = onyx_analysis.add_output_location(result_file)
-    required_field_fail, attribute_fail = onyx_analysis.check_analysis_object()
+    required_field_fail, attribute_fail = onyx_analysis.check_analysis_object(
+        publish_analysis=False
+    )
 
-    if any([methods_fail, results_fail, output_fail, required_field_fail, attribute_fail]):
+    if any([methods_fail, results_fail, required_field_fail, attribute_fail]):
         exitcode = 1
     else:
         exitcode = 0

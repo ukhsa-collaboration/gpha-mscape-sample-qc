@@ -160,7 +160,6 @@ def expected_fields_dict(expected_config_dict, expected_result_dict):
         "methods": json.dumps(expected_config_dict),
         "result": "Warning: Check QC results before use",
         "result_metrics": json.dumps(expected_result_dict),
-        "report": "tests/test_data/C-123456789_qc_results.json",
         "synthscape_records": ["C-123456789"],
         "identifiers": [],
     }
@@ -233,12 +232,11 @@ def test_create_analysis_fields_pass(
     expected_config_dict, expected_result_dict, expected_fields_dict, expected_result_file
 ):
     onyx_analysis, exitcode = qc.create_analysis_fields(
-        "C-123456789",
-        expected_config_dict,
-        expected_result_dict,
-        "synthscape",
-        "Warning: Check QC results before use",
-        expected_result_file,
+        record_id="C-123456789",
+        qc_thresholds=expected_config_dict,
+        headline_result="Warning: Check QC results before use",
+        qc_results=expected_result_dict,
+        server="synthscape",
     )
     print(onyx_analysis.__dict__)
 
@@ -250,12 +248,11 @@ def test_create_analysis_fields_fail(
     expected_config_dict, expected_fields_dict, expected_result_dict, expected_result_file
 ):
     onyx_analysis, exitcode = qc.create_analysis_fields(
-        "C-123456789",
-        expected_config_dict,
-        expected_result_dict,
-        "synthscape",
-        "Warning: Check QC results before use",
-        "not a file path or dir",
+        record_id="C-123456789",
+        qc_thresholds="not a dictionary",
+        headline_result="Warning: Check QC results before use",
+        qc_results=expected_result_dict,
+        server="synthscape",
     )
     print(onyx_analysis.__dict__)
 

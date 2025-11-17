@@ -94,7 +94,7 @@ def main():
 
     # Use default config if file is not supplied
     if not args.config:
-        config_path = resources.files("mscape_sample_qc.lib").joinpath( "qc_thresholds.yaml")
+        config_path = resources.files("mscape_sample_qc.lib").joinpath("qc_thresholds.yaml")
         args.config = str(config_path)
         logging.info(
             "No config file specified, using default parameters from file: %s", args.config
@@ -141,10 +141,9 @@ def main():
     onyx_analysis, exitcode = qc.create_analysis_fields(
         args.input,
         threshold_dict["sample_thresholds"],
+        headline_result,
         qc_results_dict,
         args.server,
-        headline_result,
-        str(qc_result_file),
     )
 
     if exitcode == 1:
@@ -160,12 +159,17 @@ def main():
         return exitcode
 
     if args.test_onyx:
-        result, exitcode = onyx_analysis.write_analysis_to_onyx(server=args.server, dryrun=True)
+        result, exitcode = onyx_analysis.write_analysis_to_onyx(
+            server=args.server, dryrun=True, publish_analysis=False
+        )
 
     if args.prod_onyx:
-        result, exitcode = onyx_analysis.write_analysis_to_onyx(server=args.server, dryrun=False)
+        result, exitcode = onyx_analysis.write_analysis_to_onyx(
+            server=args.server, dryrun=False, publish_analysis=False
+        )
 
     return exitcode
+
 
 if __name__ == "__main__":
     sys.exit(main())
