@@ -215,7 +215,7 @@ def create_analysis_fields(
         publish_analysis=False
     )
 
-    if any([methods_fail, results_fail, required_field_fail, attribute_fail]):
+    if any([methods_fail, results_fail, required_field_fail, attribute_fail]): # noqa SIM108
         exitcode = 1
     else:
         exitcode = 0
