@@ -130,6 +130,7 @@ def main():
 
     # NOTE: Remove this step if decide to only add results to analysis table
     qc_result_file = qc.write_qc_results_to_json(qc_results_dict, args.input, args.output)
+    logging.info("QC results written to file %s", qc_result_file)
 
     if args.no_onyx:
         exitcode = 0
