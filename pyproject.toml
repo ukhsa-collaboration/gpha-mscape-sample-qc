@@ -1,0 +1,57 @@
+[project]
+name = "mscape-sample-qc"
+version = "0.1.0"
+description = "Code base to QC mscape sample"
+authors = [{name = "Deborah Greer", email = "deborah.greer@ukhsa.gov.uk"}]
+requires-python = ">=3.12"
+dependencies = ["pandas", "pyyaml", "climb-onyx-client", "onyx-analysis-helper@git+https://github.com/ukhsa-collaboration/onyx-analysis-helper.git"]
+
+[tool.setuptools.dynamic]
+version = {attr = "mscape_sample_qc.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"mscape_sample_qc.lib" = ["*.yaml"]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.4.10,<0.5", "pytest", "pytest-cov"]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+qc_sample = "mscape_sample_qc.qc_sample:main"
+
+[project.urls]
+Homepage = "https://github.com/ukhsa-collaboration/mscape-sample-qc"
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # comprehesnions
+    "C4",
+    # pathlib
+    "PTH",
+]
+
+ignore = ["E501"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.format]
+quote-style = "double"
