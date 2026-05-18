@@ -64,6 +64,12 @@ def get_args():
         action="store_true",
         help="Use this option to upload results to onyx",
     )
+    parser.add_argument(
+        "--version",
+        "-v",
+        action="version",
+        version=f"%(prog)s - version {version('mscape-sample-qc')}",
+    )
 
     return parser.parse_args()
 
