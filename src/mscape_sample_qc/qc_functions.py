@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pandas as pd
 import yaml
-from onyx import OnyxClient, OnyxConfig, OnyxEnv
+from onyx import OnyxConfig, OnyxEnv
 from onyx_analysis_helper import onyx_analysis_helper_functions as oa
 
 # Set up onyx config
@@ -20,24 +20,32 @@ CONFIG = OnyxConfig(
 
 
 # Functions
-@oa.call_to_onyx
-def retrieve_sample_information(record_id: str, server: str) -> [pd.DataFrame, dict]:
-    """Retrieves sample information for given climb id. Returns two dataframes:
-    - One containing classification information for the sample
-    - One containing all other metadata for the sample
+def retrieve_sample_information(record_id: str, server: str) -> tuple[pd.DataFrame, list, int]:
     """
-    # Retrieve record info
-    with OnyxClient(CONFIG) as client:
-        metadata_dict = client.get(project=server, climb_id=record_id)
+    Retrieves sample information for given climb id. Returns classifier calls as dataframe, Onyx
+    versions and exitcode.
+    """
+    fields_to_include = ["classifier_calls"]
+    record: dict
+    onyx_versions: list[dict[str, str]]
+    onyx_exitcode: int
+    record, onyx_versions, onyx_exitcode = oa.get_data_and_versions_from_onyx(
+        record_id, server, fields=fields_to_include
+    )
 
-    # Pop the classifier information from the record dictionary object and convert to df:
-    classifier_df = pd.DataFrame(metadata_dict.pop("classifier_calls"))
-    exitcode = 0
+    if onyx_exitcode == 0:
+        # convert the record dictionary object to df:
+        classifier_df = pd.DataFrame(record["classifier_calls"])
+        exitcode = 0
+    else:
+        classifier_df = pd.DataFrame()
+        onyx_versions = []
+        exitcode = 1
 
-    return classifier_df, exitcode
+    return classifier_df, onyx_versions, exitcode
 
 
-def read_config_file(config_file: os.path) -> dict:
+def read_config_file(config_file: Path) -> dict:
     """Reads config file to get QC criteria to filter sequences against.
     Arguments:
         config_file -- yaml file containing QC criteria
@@ -169,7 +177,7 @@ def get_headline_result(qc_results) -> str:
     return headline_result
 
 
-def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: os.path) -> os.path:
+def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: Path) -> Path:
     """Write qc results dictionary to json output file.
     Arguments:
         qc_dict -- Dictionary containing qc results
@@ -187,13 +195,21 @@ def write_qc_results_to_json(qc_dict: dict, sample_id: str, results_dir: os.path
 
 
 def create_analysis_fields(
-    record_id: str, qc_thresholds: dict, headline_result: str, qc_results: dict, server: str
-) -> dict:
+    record_id: str,
+    qc_thresholds: dict,
+    onyx_versions: list,
+    tool_versions: dict,
+    headline_result: str,
+    qc_results: dict,
+    server: str,
+) -> tuple[oa.OnyxAnalysis, int]:
     """Set up fields dictionary used to populate analysis table containing
     QC metrics.
     Arguments:
         record_id -- Climb ID for sample
         qc_thresholds -- Dictionary containing qc criteria used to generate metrics
+        onyx_versions -- list of versions from onyx - must be from when data was first queried.
+        tool_versions -- dict of tools and their versions.
         headline_result -- Short description of main result
         qc_results -- Dictionary containing qc results
         server -- Server code is running on, one of "mscape" or "synthscape"
@@ -208,14 +224,21 @@ def create_analysis_fields(
         analysis_description="This is an analysis to generate QC statistics for individual samples",
     )
     onyx_analysis.add_package_metadata(package_name="mscape-sample-qc")
-    methods_fail = onyx_analysis.add_methods(methods_dict=qc_thresholds)
+    methods_versions_fail = onyx_analysis.add_versions_to_methods(
+        onyx_versions=onyx_versions, tool_versions=tool_versions
+    )
+    # Reformat the thresholds_dict:
+    methods_fail = onyx_analysis.add_methods(methods_dict={"thresholds": qc_thresholds})
+
     results_fail = onyx_analysis.add_results(top_result=headline_result, results_dict=qc_results)
     onyx_analysis.add_server_records(sample_id=record_id, server_name=server)
     required_field_fail, attribute_fail = onyx_analysis.check_analysis_object(
         publish_analysis=False
     )
 
-    if any([methods_fail, results_fail, required_field_fail, attribute_fail]): # noqa SIM108
+    if any(
+        [methods_versions_fail, methods_fail, results_fail, required_field_fail, attribute_fail]
+    ):  # noqa SIM108
         exitcode = 1
     else:
         exitcode = 0
