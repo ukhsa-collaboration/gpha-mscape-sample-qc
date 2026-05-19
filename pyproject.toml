@@ -1,10 +1,14 @@
 [project]
 name = "mscape-sample-qc"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Code base to QC mscape sample"
 authors = [{name = "Deborah Greer", email = "deborah.greer@ukhsa.gov.uk"}]
 requires-python = ">=3.12"
-dependencies = ["pandas", "pyyaml", "climb-onyx-client", "onyx-analysis-helper@git+https://github.com/ukhsa-collaboration/onyx-analysis-helper.git"]
+dependencies = [
+    "pandas",
+    "pyyaml",
+    "climb-onyx-client",
+    "onyx-analysis-helper@git+https://github.com/ukhsa-collaboration/onyx-analysis-helper.git@v0.5.1"]
 
 [tool.setuptools.dynamic]
 version = {attr = "mscape_sample_qc.__version__"}
@@ -16,7 +20,7 @@ where = ["src"]
 "mscape_sample_qc.lib" = ["*.yaml"]
 
 [project.optional-dependencies]
-dev = ["ruff>=0.4.10,<0.5", "pytest", "pytest-cov"]
+dev = ["ruff", "pytest", "pytest-cov"]
 
 [build-system]
 requires = ["setuptools"]

@@ -30,8 +30,9 @@ For developers:
 | --server, -s      |    Yes    |  Specify server code is being run on. Options: mscape, synthscape |
 | --no-onyx         |    No     | Use this option to write QC results to file with no onyx steps |
 | --store-onyx      |    No     | Use this option to write QC results to file and create an onyx analysis object that is written to file for later upload |
-| --test-onyx         |    No     | Use this option to write QC results to file and test submitting an onyx analysis object to onyx |
-| --prod-onyx         |    No     | Use this option to write QC results to file and submit an onyx analysis object to onyx |
+| --test-onyx       |    No     | Use this option to write QC results to file and test submitting an onyx analysis object to onyx |
+| --prod-onyx       |    No     | Use this option to write QC results to file and submit an onyx analysis object to onyx |
+| --version, -v     |    No     | Use this option to see the version of QC metrics. |
 
 
 ## Usage

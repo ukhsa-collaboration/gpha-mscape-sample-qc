@@ -9,6 +9,7 @@ import argparse
 import logging
 import sys
 from importlib import resources
+from importlib.metadata import version
 from pathlib import Path
 
 import mscape_sample_qc.qc_functions as qc
@@ -25,7 +26,7 @@ def get_args():
     )
     parser.add_argument("--input", "-i", type=str, required=True, help="Sample ID")
     parser.add_argument(
-        "--config", "-c", type=str, required=False, help="Path to file with QC criteria"
+        "--config", "-c", type=Path, required=False, help="Path to file with QC criteria"
     )
     parser.add_argument(
         "--output", "-o", type=str, required=True, help="Folder to save QC results to"
@@ -63,6 +64,12 @@ def get_args():
         action="store_true",
         help="Use this option to upload results to onyx",
     )
+    parser.add_argument(
+        "--version",
+        "-v",
+        action="version",
+        version=f"%(prog)s - version {version('mscape-sample-qc')}",
+    )
 
     return parser.parse_args()
 
@@ -88,6 +95,10 @@ def main():
 
     args = get_args()
 
+    # Set up output dir:
+    args.output = Path(args.output)
+    args.output.mkdir(parents=True, exist_ok=True)
+
     # Set up log file
     log_file = Path(args.output) / f"{args.input}_qc_metrics_log.txt"
     set_up_logger(log_file)
@@ -105,7 +116,7 @@ def main():
 
     # Read in QC parameters from file
     try:
-        threshold_dict = qc.read_config_file(args.config)
+        threshold_dict = qc.read_config_file(Path(args.config))
     except FileNotFoundError:
         logging.error("Specified config file not found, exiting program")
         exitcode = 1
@@ -113,10 +124,13 @@ def main():
 
     ## Set up data needed for report
     # Retrieve classifier calls and metadata for record
-    class_df, exitcode = qc.retrieve_sample_information(args.input, args.server)
+    class_df, onyx_versions, exitcode = qc.retrieve_sample_information(args.input, args.server)
 
     if exitcode == 1:
         return exitcode
+
+    # Set up tool versions:
+    tool_versions = {"qc_metrics_version": version("mscape-sample-qc")}
 
     # Calculate proportions for key metrics based on classification
     # information and add to the metadata dict
@@ -140,11 +154,13 @@ def main():
     # Set up data for entry in analysis table
     headline_result = qc.get_headline_result(qc_results_dict)
     onyx_analysis, exitcode = qc.create_analysis_fields(
-        args.input,
-        threshold_dict["sample_thresholds"],
-        headline_result,
-        qc_results_dict,
-        args.server,
+        record_id=args.input,
+        qc_thresholds=threshold_dict["sample_thresholds"],
+        onyx_versions=onyx_versions,
+        tool_versions=tool_versions,
+        headline_result=headline_result,
+        qc_results=qc_results_dict,
+        server=args.server,
     )
 
     if exitcode == 1:
