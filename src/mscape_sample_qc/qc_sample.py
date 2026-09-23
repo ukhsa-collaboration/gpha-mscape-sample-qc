@@ -36,7 +36,7 @@ def get_args():
         "-s",
         type=str,
         required=True,
-        choices=["mscape", "synthscape"],
+        choices=["mscape", "synthscape", "devscape"],
         help="Specify server code is being run on",
     )
     group = parser.add_mutually_exclusive_group(required=True)
