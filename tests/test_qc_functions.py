@@ -13,7 +13,7 @@ from onyx import OnyxConfig, OnyxEnv
 
 from mscape_sample_qc import qc_functions as qc
 
-QC_VERSION = version("mscape-sample-qc")
+QC_VERSION = "v" + version("mscape-sample-qc")
 
 
 # Fixtures
