@@ -1,4 +1,4 @@
-FROM python:3.12
+FROM python:3.14
 
 ADD . /gpha_mscape_sample_qc/
 WORKDIR /gpha_mscape_sample_qc
