@@ -3,7 +3,7 @@ name = "mscape-sample-qc"
 dynamic = ["version"]
 description = "Code base to QC mscape sample"
 authors = [{name = "Deborah Greer", email = "deborah.greer@ukhsa.gov.uk"}]
-requires-python = ">=3.12"
+requires-python = ">=3.14.10"
 dependencies = [
     "pandas",
     "pyyaml",
