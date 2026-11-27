@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.2.3
+Updated python versions from 3.12 to 3.14
+
+### Changed:
+- Bumped python version from 3.12 to 3.14 in pyproject.toml, Dockerfile, github workflow test-build.yml.
+- Onyx analysis helper version changed to v0.6.8 in pyproject.toml
+
+---
+---
+
+
 ## v0.2.2
 Added devscape and bumped onyx analysis helper version.
 
